@@ -1,16 +1,32 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15
     container_name: pg-url-shortener
     restart: always
     ports:
-      - "5433:5432" 
+      - "5433:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: url_shortener_db
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  api:
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    env_file:
+      - ./api-gateway/.env
+    volumes:
+      - ./api-gateway:/app
+    command: npm run start:dev
 
 volumes:
   pgdata:
