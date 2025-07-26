@@ -1,21 +1,37 @@
 # Build
+dist/
 build/
 coverage/
 
-# Testes
+# Arquivos de ambiente
+.env
+.env.*
+
+# Prisma
+prisma/migrations/
+prisma/dev.db
+prisma/dev.sqlite
+*.db
+*.sqlite
+
+# Testes (mantenha os arquivos .spec.ts versionados!)
 jest*.json
-*.test.ts
-*.spec.ts
+# Removido: *.test.ts e *.spec.ts (esses DEVEM ser versionados)
 
 # Logs locais
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
-# Editor temporários
+# Arquivos temporários de editor
 *.swp
 *.swo
 *.bak
+*.tmp
 
-# Prisma (se estiver usando)
-prisma/migrations/
+# VS Code
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
