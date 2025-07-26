@@ -1,17 +1,21 @@
-# Node
-node_modules/
-dist/
-.env
-*.log
-*.tsbuildinfo
+# Build
+build/
+coverage/
 
-# Docker
-docker-compose.override.yml
+# Testes
+jest*.json
+*.test.ts
+*.spec.ts
 
-# IDEs
-.vscode/
-.idea/
+# Logs locais
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
-# OS
-.DS_Store
-Thumbs.db
+# Editor temporários
+*.swp
+*.swo
+*.bak
+
+# Prisma (se estiver usando)
+prisma/migrations/
