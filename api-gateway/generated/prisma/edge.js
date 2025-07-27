@@ -174,7 +174,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -183,8 +182,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"linux-musl-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  shortUrls ShortUrl[]\n}\n\nmodel ShortUrl {\n  id          String    @id @default(uuid())\n  hash        String    @unique @db.VarChar(6)\n  originalUrl String\n  clicks      Int       @default(0)\n  userId      String?\n  user        User?     @relation(fields: [userId], references: [id])\n  createdAt   DateTime  @default(now())\n  updatedAt   DateTime  @updatedAt\n  deletedAt   DateTime?\n}\n",
-  "inlineSchemaHash": "05df9cf6f6f6069c71971272766556acbb7c6676a457e33699f20e5d51072f77",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"linux-musl-openssl-3.0.x\"]\n  output        = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  shortUrls ShortUrl[]\n}\n\nmodel ShortUrl {\n  id          String    @id @default(uuid())\n  hash        String    @unique @db.VarChar(6)\n  originalUrl String\n  clicks      Int       @default(0)\n  userId      String?\n  user        User?     @relation(fields: [userId], references: [id])\n  createdAt   DateTime  @default(now())\n  updatedAt   DateTime  @updatedAt\n  deletedAt   DateTime?\n}\n",
+  "inlineSchemaHash": "837bb43b91ec1db234784f2d0ad04475d1a898b9c29784c7933a1bda6810ab78",
   "copyEngine": true
 }
 config.dirname = '/'
