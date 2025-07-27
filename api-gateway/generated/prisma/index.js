@@ -154,6 +154,10 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "linux-musl-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -180,8 +184,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  shortUrls ShortUrl[] // 👈 RELAÇÃO: 1 usuário → N URLs\n}\n\nmodel ShortUrl {\n  id          String    @id @default(uuid())\n  hash        String    @unique @db.VarChar(6)\n  originalUrl String\n  clicks      Int       @default(0)\n  userId      String?\n  user        User?     @relation(fields: [userId], references: [id])\n  createdAt   DateTime  @default(now())\n  updatedAt   DateTime  @updatedAt\n  deletedAt   DateTime?\n}\n",
-  "inlineSchemaHash": "2b33935b20f946612ed7e645901a66dca1e84413f782e0e59828a5b59e75ad62",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"linux-musl-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  shortUrls ShortUrl[]\n}\n\nmodel ShortUrl {\n  id          String    @id @default(uuid())\n  hash        String    @unique @db.VarChar(6)\n  originalUrl String\n  clicks      Int       @default(0)\n  userId      String?\n  user        User?     @relation(fields: [userId], references: [id])\n  createdAt   DateTime  @default(now())\n  updatedAt   DateTime  @updatedAt\n  deletedAt   DateTime?\n}\n",
+  "inlineSchemaHash": "05df9cf6f6f6069c71971272766556acbb7c6676a457e33699f20e5d51072f77",
   "copyEngine": true
 }
 
@@ -222,6 +226,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
 path.join(process.cwd(), "generated/prisma/query_engine-windows.dll.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-linux-musl-openssl-3.0.x.so.node");
+path.join(process.cwd(), "generated/prisma/libquery_engine-linux-musl-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "generated/prisma/schema.prisma")
