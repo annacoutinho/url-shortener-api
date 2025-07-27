@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateShortUrlDto } from './dto/create-short-url.dto';
@@ -7,12 +11,16 @@ import { UpdateShortUrlDto } from './dto/update-short-url.dto';
 
 @Injectable()
 export class ShortenerService {
+  private readonly logger = new Logger(ShortenerService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async createShortUrl(
     dto: CreateShortUrlDto,
     userId?: string,
   ): Promise<{ shortUrl: string }> {
+    this.logger.log(`Criando URL encurtada para: ${dto.originalUrl}`);
+
     const hash = await this.generateUniqueHash();
 
     const newShortUrl = await this.prisma.shortUrl.create({
@@ -23,7 +31,10 @@ export class ShortenerService {
       },
     });
 
-    return { shortUrl: this.buildShortUrl(newShortUrl.hash) };
+    const shortUrl = this.buildShortUrl(newShortUrl.hash);
+    this.logger.log(`URL encurtada criada: ${shortUrl}`);
+
+    return { shortUrl };
   }
 
   private async generateUniqueHash(): Promise<string> {
@@ -32,9 +43,7 @@ export class ShortenerService {
 
     do {
       hash = randomBytes(3).toString('base64url').slice(0, 6);
-      const found = await this.prisma.shortUrl.findUnique({
-        where: { hash },
-      });
+      const found = await this.prisma.shortUrl.findUnique({ where: { hash } });
       exists = !!found;
     } while (exists);
 
@@ -44,12 +53,15 @@ export class ShortenerService {
   private buildShortUrl(hash: string): string {
     const baseUrl = process.env.BASE_URL;
     if (!baseUrl) {
+      this.logger.error('Variável BASE_URL não está definida no ambiente');
       throw new Error('Variável BASE_URL não está definida no ambiente (.env)');
     }
     return `${baseUrl}/${hash}`;
   }
 
   async getAndCount(hash: string): Promise<{ originalUrl: string } | null> {
+    this.logger.log(`Buscando URL original para hash: ${hash}`);
+
     const shortUrl = await this.prisma.shortUrl.findFirst({
       where: {
         hash,
@@ -58,6 +70,7 @@ export class ShortenerService {
     });
 
     if (!shortUrl) {
+      this.logger.warn(`URL não encontrada para hash: ${hash}`);
       return null;
     }
 
@@ -66,10 +79,14 @@ export class ShortenerService {
       data: { clicks: { increment: 1 } },
     });
 
+    this.logger.log(`Clique registrado para hash: ${hash}`);
+
     return { originalUrl: shortUrl.originalUrl };
   }
 
   async getMyUrls(userId: string): Promise<UserShortUrl[]> {
+    this.logger.log(`Listando URLs do usuário: ${userId}`);
+
     const urls = await this.prisma.shortUrl.findMany({
       where: {
         userId,
@@ -92,6 +109,8 @@ export class ShortenerService {
     userId: string,
     dto: UpdateShortUrlDto,
   ): Promise<void> {
+    this.logger.log(`Atualizando URL ${id} do usuário ${userId}`);
+
     const existing = await this.prisma.shortUrl.findFirst({
       where: {
         id,
@@ -101,6 +120,7 @@ export class ShortenerService {
     });
 
     if (!existing) {
+      this.logger.warn(`URL ${id} não encontrada para usuário ${userId}`);
       throw new NotFoundException('URL não encontrada ou não pertence ao usuário');
     }
 
@@ -111,9 +131,13 @@ export class ShortenerService {
         updatedAt: new Date(),
       },
     });
+
+    this.logger.log(`URL ${id} atualizada com sucesso`);
   }
 
   async deleteShortUrl(id: string, userId: string): Promise<void> {
+    this.logger.log(`Deletando URL ${id} do usuário ${userId}`);
+
     const url = await this.prisma.shortUrl.findFirst({
       where: {
         id,
@@ -123,6 +147,7 @@ export class ShortenerService {
     });
 
     if (!url) {
+      this.logger.warn(`URL ${id} não encontrada ou já deletada`);
       throw new NotFoundException('URL não encontrada ou já deletada');
     }
 
@@ -132,5 +157,7 @@ export class ShortenerService {
         deletedAt: new Date(),
       },
     });
+
+    this.logger.log(`URL ${id} deletada com sucesso`);
   }
 }

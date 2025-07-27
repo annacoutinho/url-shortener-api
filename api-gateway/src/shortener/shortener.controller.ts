@@ -10,6 +10,7 @@ import {
   Patch,
   Delete,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
@@ -24,13 +25,13 @@ import {
   ApiTags,
   ApiParam,
 } from '@nestjs/swagger';
-import { UserShortUrl } from './interfaces/user-short-url.interface';
 import { UpdateShortUrlDto } from './dto/update-short-url.dto';
-
 
 @ApiTags('Shortener')
 @Controller('shorten')
 export class ShortenerController {
+  private readonly logger = new Logger(ShortenerController.name);
+
   constructor(private readonly shortenerService: ShortenerService) {}
 
   @Post()
@@ -44,7 +45,9 @@ export class ShortenerController {
     @Req() req: RequestWithUser,
   ) {
     const userId = req.user.sub;
-    return this.shortenerService.createShortUrl(dto, userId);
+    this.logger.log(`Criando URL encurtada para userId: ${userId}`);
+    const result = await this.shortenerService.createShortUrl(dto, userId);
+    return result;
   }
 
   @Get('me')
@@ -59,9 +62,9 @@ export class ShortenerController {
   })
   async getMyUrls(@Req() req: RequestWithUser) {
     const userId = req.user.sub;
+    this.logger.log(`Listando URLs do userId: ${userId}`);
     return this.shortenerService.getMyUrls(userId);
   }
-
 
   @Get(':hash')
   @ApiOperation({ summary: 'Redireciona a partir de um hash' })
@@ -72,43 +75,48 @@ export class ShortenerController {
     @Param('hash') hash: string,
     @Res() res: Response,
   ) {
+    this.logger.log(`Recebido redirecionamento para hash: ${hash}`);
     const url = await this.shortenerService.getAndCount(hash);
 
     if (!url) {
+      this.logger.warn(`URL com hash ${hash} não encontrada`);
       throw new NotFoundException('URL encurtada não encontrada');
     }
 
+    this.logger.log(`Redirecionando para: ${url.originalUrl}`);
     return res.redirect(url.originalUrl);
   }
 
   @Patch(':id')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
-@ApiOperation({ summary: 'Atualiza uma URL encurtada' })
-@ApiResponse({ status: 200, description: 'URL atualizada com sucesso' })
-@ApiResponse({ status: 404, description: 'URL não encontrada ou não pertence ao usuário' })
-async updateShortUrl(
-  @Param('id') id: string,
-  @Body() dto: UpdateShortUrlDto,
-  @Req() req: RequestWithUser,
-) {
-  const userId = req.user.sub;
-  await this.shortenerService.updateShortUrl(id, userId, dto);
-  return { message: 'URL atualizada com sucesso' };
-}
-@Delete(':id')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
-@ApiOperation({ summary: 'Deleta logicamente uma URL encurtada' })
-@ApiResponse({ status: 200, description: 'URL deletada com sucesso' })
-@ApiResponse({ status: 404, description: 'URL não encontrada ou já deletada' })
-async deleteShortUrl(
-  @Param('id') id: string,
-  @Req() req: RequestWithUser,
-) {
-  const userId = req.user.sub;
-  await this.shortenerService.deleteShortUrl(id, userId);
-  return { message: 'URL deletada com sucesso' };
-}
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Atualiza uma URL encurtada' })
+  @ApiResponse({ status: 200, description: 'URL atualizada com sucesso' })
+  @ApiResponse({ status: 404, description: 'URL não encontrada ou não pertence ao usuário' })
+  async updateShortUrl(
+    @Param('id') id: string,
+    @Body() dto: UpdateShortUrlDto,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.sub;
+    this.logger.log(`Atualizando URL ${id} para userId: ${userId}`);
+    await this.shortenerService.updateShortUrl(id, userId, dto);
+    return { message: 'URL atualizada com sucesso' };
+  }
 
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Deleta logicamente uma URL encurtada' })
+  @ApiResponse({ status: 200, description: 'URL deletada com sucesso' })
+  @ApiResponse({ status: 404, description: 'URL não encontrada ou já deletada' })
+  async deleteShortUrl(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.sub;
+    this.logger.log(`Deletando URL ${id} para userId: ${userId}`);
+    await this.shortenerService.deleteShortUrl(id, userId);
+    return { message: 'URL deletada com sucesso' };
+  }
 }
