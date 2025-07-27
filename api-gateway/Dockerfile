@@ -1,18 +1,18 @@
 FROM node:18-alpine
 
-
 WORKDIR /app
 
+RUN apk add --no-cache bash
 
 COPY package*.json ./
 RUN npm install
 
-
 COPY . .
 
 
-RUN npm run build
+RUN chmod -R 755 node_modules/.bin
 
+RUN bash -c "npm run build"
 
 EXPOSE 3000
 
