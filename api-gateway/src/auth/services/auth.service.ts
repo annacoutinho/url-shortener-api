@@ -1,14 +1,16 @@
 import {
-  Injectable,
   ConflictException,
-  UnauthorizedException,
+  Injectable,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { PrismaService } from '../../prisma/prisma.service';
+import { LoginDto } from '../dto/login.dto';
+import { RegisterDto } from '../dto/register.dto';
+import { PasswordService } from './password.service';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +18,8 @@ export class AuthService {
 
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService,
+    private passwordService: PasswordService,
+    private tokenService: TokenService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -31,7 +34,7 @@ export class AuthService {
       throw new ConflictException('E-mail já registrado');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await this.passwordService.hash(dto.password);
 
     const user = await this.prisma.user.create({
       data: {
@@ -61,15 +64,14 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const valid = await bcrypt.compare(dto.password, user.password);
+    const valid = await this.passwordService.compare(dto.password, user.password);
 
     if (!valid) {
       this.logger.warn(`Login falhou. Senha incorreta para: ${dto.email}`);
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const payload = { sub: user.id, email: user.email };
-    const token = this.jwtService.sign(payload);
+    const token = this.tokenService.generateToken(user.id, user.email);
 
     this.logger.log(`Login bem-sucedido para: ${dto.email}`);
 

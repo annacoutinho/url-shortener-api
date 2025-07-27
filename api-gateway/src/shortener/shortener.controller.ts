@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateShortUrlDto } from './dto/create-short-url.dto';
 import { ShortenerService } from './shortener.service';
 import { UserShortUrlDto } from './dto/user-short-url.dto';

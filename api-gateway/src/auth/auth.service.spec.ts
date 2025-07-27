@@ -1,8 +1,7 @@
-import { Test } from '@nestjs/testing';
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
+import { Test } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuthService } from './services/auth.service';
 
 jest.mock('bcryptjs', () => ({
   hash: jest.fn(),
@@ -60,7 +59,7 @@ describe('AuthService', () => {
       const resultado = await service.register(dadosRegistro);
 
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { email: 'anna@hotmail.com' }
+        where: { email: 'anna@hotmail.com' },
       });
       expect(bcrypt.hash).toHaveBeenCalledWith('minhaSenha123', 10);
       expect(resultado).toEqual({
@@ -73,8 +72,9 @@ describe('AuthService', () => {
     it('falha quando o email já existe', async () => {
       prisma.user.findUnique.mockResolvedValue(anna);
 
-      await expect(service.register(dadosRegistro))
-        .rejects.toThrow('E-mail já registrado');
+      await expect(service.register(dadosRegistro)).rejects.toThrow(
+        'E-mail já registrado',
+      );
 
       expect(prisma.user.create).not.toHaveBeenCalled();
     });
@@ -93,10 +93,13 @@ describe('AuthService', () => {
 
       const resultado = await service.login(dadosLogin);
 
-      expect(bcrypt.compare).toHaveBeenCalledWith('minhaSenha123', 'hash_da_senha');
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        'minhaSenha123',
+        'hash_da_senha',
+      );
       expect(jwt.sign).toHaveBeenCalledWith({
         sub: 1,
-        email: 'anna@hotmail.com'
+        email: 'anna@hotmail.com',
       });
       expect(resultado).toEqual({ access_token: 'token_gerado' });
     });
@@ -104,16 +107,18 @@ describe('AuthService', () => {
     it('falha quando usuário não existe', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.login(dadosLogin))
-        .rejects.toThrow('Credenciais inválidas');
+      await expect(service.login(dadosLogin)).rejects.toThrow(
+        'Credenciais inválidas',
+      );
     });
 
     it('falha com senha errada', async () => {
       prisma.user.findUnique.mockResolvedValue(anna);
       bcrypt.compare.mockResolvedValue(false);
 
-      await expect(service.login(dadosLogin))
-        .rejects.toThrow('Credenciais inválidas');
+      await expect(service.login(dadosLogin)).rejects.toThrow(
+        'Credenciais inválidas',
+      );
 
       expect(jwt.sign).not.toHaveBeenCalled();
     });
@@ -139,7 +144,7 @@ describe('AuthService', () => {
 
       expect(jwt.sign).toHaveBeenCalledWith({
         sub: anna.id,
-        email: anna.email
+        email: anna.email,
       });
     });
   });
