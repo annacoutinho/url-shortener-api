@@ -3,6 +3,12 @@
 Todas as mudanças importantes deste projeto serão documentadas aqui.
 
 O formato segue a [Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/).
+## [0.5.0] - 2025-07-27
+### Adicionado
+- Testes unitários para AuthService, PasswordService e TokenService
+
+### Alterado
+- Refatoração do módulo de autenticação com separação dos serviços em arquivos distintos
 
 ## [0.4.0] - 2025-07-27
 ### Adicionado
