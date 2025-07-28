@@ -4,7 +4,7 @@ API para encurtamento de URLs com autenticação JWT, estatísticas de acesso e 
 
 Deploy disponível em produção: https://url-shortener-api-go11.onrender.com
 
-*Este projeto foi hospedado gratuitamente no Render, que pode hibernar o serviço após um tempo de inatividade. Por isso, o link de produção pode ficar temporariamente indisponível.*
+⚠️ Este projeto foi hospedado gratuitamente no Render, que pode hibernar o serviço após um tempo de inatividade. Por isso, o link de produção pode ficar temporariamente indisponível.
 
 ---
 
@@ -92,11 +92,6 @@ npm install
 cp .env.example .env
 # Edite o arquivo .env com suas configurações
 ```
-
-### Configuração do ambiente
-
-Crie um arquivo `.env` na raiz do projeto:
-
 
 
 ### Executando o projeto
@@ -186,6 +181,10 @@ curl -X GET http://localhost:3000/urls \
 # Executar todos os testes
 npm run test
 
+# Executar testes em modo watch
+npm run test:watch
+
+
 
 ## Docker
 
@@ -223,28 +222,51 @@ A documentação interativa da API está disponível em:
 
 ---
 
-Estrutura do Projeto
+## Estrutura do projeto
 
+```
 src/
+├── app/               # Módulo principal da aplicação
+│   └── app.module.ts  # Configuração dos módulos
 ├── auth/              # Módulo de autenticação
-│   ├── controllers/   # Controllers (ex: AuthController)
+│   ├── controllers/   # Controllers de autenticação
 │   ├── dto/           # DTOs de login e registro
-│   ├── services/      # Serviços: AuthService, PasswordService, TokenService
-│   └── test/          # Testes unitários
-├── urls/              # Módulo de URLs encurtadas
-├── users/             # Módulo de usuários
-├── common/            # Decorators e middlewares comuns
-├── database/          # PrismaService e configuração de banco
+│   ├── guards/        # Guards JWT e auth
+│   ├── interfaces/    # Interfaces de auth
+│   ├── services/      # Serviços de autenticação
+│   ├── strategies/    # Estratégias de autenticação (JWT)
+│   ├── test/          # Testes unitários
+│   └── auth.module.ts # Módulo de autenticação
+├── common/            # Utilitários comuns
+│   └── logger.interceptor.ts # Interceptor de logs
+├── prisma/            # Configuração do Prisma
+│   └── prisma.service.ts # Serviço do Prisma
+├── shortener/         # Módulo de encurtamento de URLs
+│   ├── dto/           # DTOs do shortener
+│   ├── interfaces/    # Interfaces do shortener
+│   ├── shortener.controller.ts # Controller principal
+│   ├── shortener.module.ts     # Módulo do shortener
+│   ├── shortener.service.ts    # Serviço principal
+│   └── shortener.service.spec.ts # Testes unitários
 └── main.ts            # Entry point da aplicação
 
 prisma/
 ├── schema.prisma      # Schema do Prisma
 └── migrations/        # Histórico de migrações do banco de dados
+```
 
-Histórico de Versões
-Versão	Data	Alterações principais
-0.2.0	2025-07-27	Refatoração do módulo de autenticação: serviços separados e testes unitários
-0.1.0	2025-07-26	Estrutura inicial com encurtamento de URLs e autenticação básica
+---
+
+## Histórico de versões
+
+| Versão | Data       | Alterações principais |
+|--------|------------|----------------------|
+| 0.2.0  | 2025-07-27 | Refatoração do módulo de autenticação: serviços separados e testes unitários |
+| 0.1.0  | 2025-07-26 | Estrutura inicial com encurtamento de URLs e autenticação básica |
+
+---
+
+
 
 
 **Feito com Node.js e NestJS**
