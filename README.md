@@ -223,32 +223,28 @@ A documentação interativa da API está disponível em:
 
 ---
 
-## Estrutura do projeto
+Estrutura do Projeto
 
-```
 src/
 ├── auth/              # Módulo de autenticação
-├── urls/              # Módulo de URLs
+│   ├── controllers/   # Controllers (ex: AuthController)
+│   ├── dto/           # DTOs de login e registro
+│   ├── services/      # Serviços: AuthService, PasswordService, TokenService
+│   └── test/          # Testes unitários
+├── urls/              # Módulo de URLs encurtadas
 ├── users/             # Módulo de usuários
-├── common/            # Utilitários e decorators
-├── database/          # Configuração do Prisma
-└── main.ts           # Arquivo principal
+├── common/            # Decorators e middlewares comuns
+├── database/          # PrismaService e configuração de banco
+└── main.ts            # Entry point da aplicação
 
 prisma/
-├── schema.prisma     # Schema do banco
-└── migrations/       # Migrações
+├── schema.prisma      # Schema do Prisma
+└── migrations/        # Histórico de migrações do banco de dados
 
----
-
-## Histórico de versões
-
-| Versão | Data       | Alterações principais |
-|--------|------------|----------------------|
-| 0.4.0  | 2025-07-27 | Adicionado contador de cliques por URL |
-| 0.3.0  | 2025-07-26 | CRUD de URLs autenticadas, edição e soft delete |
-| 0.2.0  | 2025-07-25 | Autenticação JWT: login e registro |
-| 0.1.0  | 2025-07-24 | Estrutura inicial: encurtamento e redirecionamento |
-
+Histórico de Versões
+Versão	Data	Alterações principais
+0.2.0	2025-07-27	Refatoração do módulo de autenticação: serviços separados e testes unitários
+0.1.0	2025-07-26	Estrutura inicial com encurtamento de URLs e autenticação básica
 
 
 **Feito com Node.js e NestJS**
